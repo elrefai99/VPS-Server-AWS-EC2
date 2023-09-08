@@ -1,22 +1,23 @@
 # Connection with VPS Server (AWS-EC2)
 
-- first thing you must create instance in AWS-EC2 and connect with your VPS ip address, you can connect from ES2 instance connect in username ```root``` or for more secure way is using an SSH key.
+How to deploy nodejs app to AWS EC2 Ubuntu 22 Server with free SSL and Nginx reverse proxy
 
 ---
+## Installation instructions
 ## connect with server
 
 - In EC2 instance connect: you can choice your username ubuntu or as administrator ```(root)```
 - In SSH instance connect: open terminal and write this command 
 ```bash
-ssh root@<server ip address>
+ssh -i <key.pem> ubuntu@<ip-address> -v
 ```
 
 ## First Configuration
 
-### Cleaning & Update apt and this will take some seconds
+### Update apt and this will take some seconds
 
 ```bash
-sudo apt clean all && sudo apt update && sudo apt upgrade
+sudo apt update && sudo apt upgrade
 ```
 ### Check GIT version
 ```bash
@@ -30,7 +31,20 @@ git --version
 ### Install Node.js and npm
 ```bash
 curl -sL https://deb.nodesource.com/setup_18.x | bash -
+```
+```bash
 apt-get install -y nodejs
+```
+
+#### Check nodejs installed
+```bash
+node --version
+```
+
+#### Check npm installed
+
+```bash
+npm --version
 ```
 
 ### clone project from github to server
@@ -51,13 +65,59 @@ node index.js
 ```
 
 - then you can take ip address and run it in your browser
-### Make project still available running
 
-- there a good tool call [pm2](https://github.com/Unitech/pm2)
+### Make project still available running (Make sure everything working)
+
+#### Install pm2
+
 ```bash
 npm install -g pm2
 ```
-- and then run your project
+
+#### Starting the app with pm2
 ```bash
 pm2 start index.js
 ```
+
+#### Saves the running processes, if not saved, pm2 will forget, the running apps on next boot
+```bash
+pm2 save
+```
+
+#### IMPORTANT: If you want pm2 to start on system boot
+```bash
+pm2 startup 
+```
+
+### Install Nginx web server
+```bash
+sudo apt install nginx
+```
+```bash
+sudo nano /etc/nginx/sites-available/default
+```
+Add the following to the location part of the server block
+```bash
+  server_name yourdomain.com www.yourdomain.com;
+
+  location / {
+      #whatever port your app runs on
+      proxy_pass http://localhost:9000; 
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
+      proxy_set_header Host $host;
+      proxy_cache_bypass $http_upgrade;
+  }
+```
+Check NGINX config
+```bash
+sudo nginx -t
+```
+Restart NGINX
+```bash
+sudo service nginx restart
+```
+
+You should now be able to visit your IP with no port (port 80) and see your app. Now let's add a domain
+## Enjoy Your Nodejs server 😁
