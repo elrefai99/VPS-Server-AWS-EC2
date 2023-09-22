@@ -134,7 +134,7 @@ server {
 ```
 create site-available and site-enabled to let any change make in both
 ```bash
-ln -s /etc/nginx/sites-available/netflix /etc/nginx/sites-enabled/netflix
+ln -s /etc/nginx/sites-available/project_name /etc/nginx/sites-enabled/project_name
 ```
 
 Check NGINX config
