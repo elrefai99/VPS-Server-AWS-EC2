@@ -93,26 +93,56 @@ pm2 startup
 ```bash
 sudo apt install nginx
 ```
+Delete the default config
 ```bash
-sudo nano /etc/nginx/sites-available/default
+rm /etc/nginx/sites-available/default
+```
+```bash
+rm /etc/nginx/sites-enabled/default
+```
+#### Create new project config
+
+```bash
+sudo nano /etc/nginx/sites-available/project_name
 ```
 Add the following to the location part of the server block
 ```bash
-  server_name yourdomain.com www.yourdomain.com;
+server {
+        listen 80;
+        listen [::]:80;
 
-  location / {
-      #whatever port your app runs on
-      proxy_pass http://localhost:9000; 
-      proxy_http_version 1.1;
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection 'upgrade';
-      proxy_set_header Host $host;
-      proxy_cache_bypass $http_upgrade;
-  }
+        client_max_body_size 100M;
+
+        root /your/path/to/project;
+
+        server_name yourdomain.com www.yourdomain.com;
+
+        location /api {
+
+                proxy_pass http://localhost:9000/;
+
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+        }
+}
 ```
+create site-available and site-enabled to let any change make in both
+```bash
+ln -s /etc/nginx/sites-available/netflix /etc/nginx/sites-enabled/netflix
+```
+
 Check NGINX config
 ```bash
 sudo nginx -t
+```
+```bash
+systemctl start nginx
 ```
 Restart NGINX
 ```bash
