@@ -115,7 +115,7 @@ server {
     index index.html index.htm index.nginx-debian.html;
     client_max_body_size 100M;
 
-    server_name api.lesoll.com;
+    server_name  supdomain.domian.com;
 
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Content-Type-Options "nosniff";
