@@ -2,7 +2,7 @@ import express from 'express'
 
 const app = express()
 
-app.get('/', (_req, res) => {
+app.get('/', (_, res) => {
     res.status(200).json({ data: [], errors: [], statusCode: 200, message: 'Hola' })
 })
 
